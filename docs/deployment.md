@@ -1,6 +1,44 @@
-# Despliegue
+# Deployment
 
-Pendiente — se completa en M3, siguiendo `03_Preparar_Despliegue` de
-MMEIA (Docker, CI, verificación de 5 puntos) para la API. El servidor
-MCP (M4) corre localmente vía stdio y no forma parte de este despliegue
-— mismo modelo que el propio Playbook `04_Crear_MCP`.
+## Local (this project's only target — see scope in `spec.md`)
+
+```bash
+cp .env.example .env   # fill in real values first
+docker compose -f docker/docker-compose.yml --env-file .env up -d --build
+```
+
+Two services: `api` (built from `docker/Dockerfile`) and `db` (official `postgres:16` image, auto-initialized with `db/schema.sql` via `docker-entrypoint-initdb.d`). Connection string and credentials via environment variables (`.env`, gitignored; `.env.example` committed with placeholder values).
+
+`docker/docker-compose.yml` declares an explicit `name: mmeia-notes-mcp-server` from the first commit — applying `04_Playbooks/03_Preparar_Despliegue/PLAYBOOK.md` v0.6.1 (Paso 4, apéndice Docker) from the start, a rule added to the Playbook precisely because of an incident found while deploying `03_SaaS` (see that project's `docs/deployment.md`). No collision occurred here: the resulting network was created as `mmeia-notes-mcp-server_default`, confirming the fix took effect from the first deployment.
+
+## What is deliberately not here
+
+No Kubernetes manifests, no cloud provider config — same deliberately local scope as `01_CRUD`/`02_API`/`03_SaaS` (`docs/architecture.md`). This deployment covers the **API only**. The MCP server (M4, `04_Crear_MCP`) does not get deployed here — it runs locally over stdio, consuming this API exactly as a regular HTTP client, same model the Playbook `04_Crear_MCP` itself assumes.
+
+## CI
+
+`.github/workflows/ci.yml`: 3 jobs chained with `needs:` — `build` (Docker image, saved as an artifact), `test` (pytest against a real PostgreSQL 16 service container), `deploy` (loads the built image; since this project's declared target is local Docker Compose, not a remote host, "deploy" here means the tested image is the artifact an operator pulls and runs — there is no remote push step).
+
+**Honest limitation:** the workflow's YAML was validated locally (`python -c "import yaml; yaml.safe_load(...)"`) but has not been observed running on a real GitHub Actions runner in this session — no `gh` CLI was available to trigger and watch a run. It will execute for real on the next push to GitHub; if it fails there, that's new evidence to fold in before `v1.0.0`.
+
+## Real deployment evidence (M3, 2026-07-26)
+
+Executed for real, not simulated — `docker compose up -d --build` from a clean `.env`, both containers reached a healthy state with no manual steps beyond providing `.env`. Full functional smoke test against the deployed stack (crear → obtener → buscar → eliminar → confirmación de `404` tras el borrado) pasó de principio a fin.
+
+Full verification (Playbook `03_Preparar_Despliegue`, Paso 6 — all 5 points, including a genuine 5-minute wait):
+
+```text
+1. Disponibilidad     -> GET /health -> 200 {"status":"ok","version":"0.3.0"}
+2. Salud               -> mismo endpoint, mismo resultado
+3. Version reportada   -> "0.3.0", coincide con la esperada
+4. Version anterior    -> mmeia-notes-mcp-server:0.2.0 presente en `docker images`
+                          (reconstruida desde el tag real v0.2.0 via git worktree
+                          + el Dockerfile actual, mismo procedimiento ya aplicado
+                          en 01_CRUD/02_API/03_SaaS)
+5. Estabilidad 5 min    -> misma respuesta tras esperar 300s reales; contenedores
+                          "Up 6 minutes (healthy)" en la comprobación final
+```
+
+Suite completa de pytest (18 tests) reejecutada tras el único cambio de código de este hito (bump de `APP_VERSION` en `src/main.py`): 18/18 pasados.
+
+Playbook Checklist final: 10/10 satisfied.

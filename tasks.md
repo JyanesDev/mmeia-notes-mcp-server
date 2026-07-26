@@ -30,9 +30,25 @@
         explícita de que el DELETE es físico de verdad. Cero ADR de
         proyecto (verificado regla-vs-decisión). Playbook Checklist
         final: 5/5.
-- [ ] M3 — Despliegue (03_Preparar_Despliegue): Docker, CI, verificación
+- [x] M3 — Despliegue (03_Preparar_Despliegue): Docker, CI, verificación
       de 5 puntos, mismo patrón que 01_CRUD/02_API/03_SaaS — despliega
-      la API, no el servidor MCP (corre localmente vía stdio)
+      la API, no el servidor MCP (corre localmente vía stdio) —
+      DONE 2026-07-26
+      - [x] `docker-compose.yml` con `name: mmeia-notes-mcp-server`
+        explícito desde el primer commit (Playbook v0.6.1, aplicando la
+        regla añadida tras el incidente real de `03_SaaS`) — sin
+        colisión: red creada como `mmeia-notes-mcp-server_default`
+      - [x] Verificación de los 5 puntos del Paso 6, incluida una
+        espera real de 5 minutos
+      - [x] Imagen anterior (`:0.2.0`) reconstruida vía `git worktree`
+        + Dockerfile actual, para que la comprobación de "versión
+        anterior presente" tenga sustancia real
+      - `despliegue.md` (Paso 1), `docker/Dockerfile` (Paso 2, imagen
+        `:0.3.0`), `.github/workflows/ci.yml` (Paso 3, validado
+        localmente), `docker/docker-compose.yml` + `.env.example`
+        (Paso 4), despliegue real (Paso 5), `docs/deployment.md`
+        (Paso 6). 18/18 tests de pytest reejecutados tras el bump de
+        `APP_VERSION`. Playbook Checklist final: 10/10.
 - [ ] M4 — Servidor MCP (04_Crear_MCP): expone crear_nota/obtener_nota/
       buscar_notas/eliminar_nota como Tools
       - [ ] Verificación con MCP Inspector (Paso 5): invocación válida,
