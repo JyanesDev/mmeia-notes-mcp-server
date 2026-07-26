@@ -49,13 +49,24 @@
         (Paso 4), despliegue real (Paso 5), `docs/deployment.md`
         (Paso 6). 18/18 tests de pytest reejecutados tras el bump de
         `APP_VERSION`. Playbook Checklist final: 10/10.
-- [ ] M4 — Servidor MCP (04_Crear_MCP): expone crear_nota/obtener_nota/
-      buscar_notas/eliminar_nota como Tools
-      - [ ] Verificación con MCP Inspector (Paso 5): invocación válida,
+- [x] M4 — Servidor MCP (04_Crear_MCP): expone crear_nota/obtener_nota/
+      buscar_notas/eliminar_nota como Tools — DONE 2026-07-26
+      - [x] Verificación con MCP Inspector (Paso 5): invocación válida,
         parámetro inválido, recurso inexistente — las 4 Tools
-      - [ ] Verificación con un cliente MCP real (Paso 6): las 4 Tools
+      - [x] Verificación con un cliente MCP real (Paso 6): las 4 Tools
         listadas por su nombre exacto
-      - [ ] Confirmación explícita de que cada Tool mantiene
+      - [x] Confirmación explícita de que cada Tool mantiene
         correspondencia 1:1 con su endpoint y ninguna contiene lógica de
         negocio propia (FR8/FR10/NFR3, principio del adaptador)
+      - `mcp-servidor/` (proyecto separado de `api/`, venv propio, SDK
+        oficial `mcp`+`httpx`), `contrato_mcp.md` (Paso 2, 4 Tools),
+        `servidor.py` (Paso 3-4, FastMCP + stdio, cada función delega
+        íntegramente en la API vía `httpx`, sin lógica de negocio propia,
+        `NOTES_API_BASE` configurable por variable de entorno).
+        Verificación real (Paso 5-6, `mcp-servidor/VERIFICATION.md`): 8
+        invocaciones con MCP Inspector CLI contra la API real (incluida
+        la confirmación de que el DELETE físico se refleja también a
+        través del Tool); cliente MCP real (Claude Code, mismo estatus
+        oficial que Claude Desktop) reinicia por completo y lista los 4
+        Tools exactos. Playbook Checklist final: 6/6.
 - [ ] M5 — Revisión formal, commit_referencia, congelación v1.0.0
