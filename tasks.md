@@ -18,10 +18,18 @@
         tiene alternativa genuinamente abierta, mismo criterio que
         `Organizacion.nombre`/`Proyecto.eliminado_en` en `03_SaaS`.
         Playbook Checklist final: 7/7.
-- [ ] M2 — API (02_Crear_API): crear/obtener/buscar/eliminar nota, sin
-      autenticación (NFR1)
-      - [ ] Tests explícitos: 404 (nota inexistente), búsqueda sin
+- [x] M2 — API (02_Crear_API): crear/obtener/buscar/eliminar nota, sin
+      autenticación (NFR1) — DONE 2026-07-26
+      - [x] Tests explícitos: 404 (nota inexistente), búsqueda sin
         resultados, búsqueda case-insensitive
+      - `api/contrato.md` (Pasos 1-2, 4 endpoints), estructura en capas
+        sin `deps.py`/`security.py` (Paso 3, NFR1), endpoints
+        implementados (Paso 4), verificación completa (Paso 6,
+        `api/VERIFICATION.md`): 18 tests de pytest + smoke test de 13
+        escenarios contra un servidor real, incluida la confirmación
+        explícita de que el DELETE es físico de verdad. Cero ADR de
+        proyecto (verificado regla-vs-decisión). Playbook Checklist
+        final: 5/5.
 - [ ] M3 — Despliegue (03_Preparar_Despliegue): Docker, CI, verificación
       de 5 puntos, mismo patrón que 01_CRUD/02_API/03_SaaS — despliega
       la API, no el servidor MCP (corre localmente vía stdio)
